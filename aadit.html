@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEON STRIKE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    body {
+      background: #050510;
+      overflow: hidden;
+      color: white;
+      height: 100vh;
+      position: relative;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(127,92,255,0.15), transparent 70%);
+      z-index: 0;
+    }
+
+    .navbar {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      padding: 25px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 5px;
+      color: #fff;
+      text-shadow: 0 0 20px #7f5cff;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: white;
+      text-shadow: 0 0 15px #00ffe0;
+    }
+
+    .hero {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+    }
+
+    .hero h1 {
+      font-size: 7rem;
+      font-weight: 900;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg,#ffffff,#7f5cff,#00ffe0,#ffffff);
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glowMove 5s linear infinite;
+    }
+
+    @keyframes glowMove {
+      0% {
+        background-position: 0%;
+      }
+      100% {
+        background-position: 300%;
+      }
+    }
+
+    .hero p {
+      margin-top: 25px;
+      max-width: 850px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.75);
+      font-size: 1.1rem;
+    }
+
+    .buttons {
+      margin-top: 45px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 18px 45px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(20px);
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.35s ease;
+      box-shadow: 0 0 25px rgba(127,92,255,0.2);
+    }
+
+    .btn:hover {
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 0 40px rgba(0,255,224,0.6);
+    }
+
+    .stats {
+      position: absolute;
+      bottom: 40px;
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    .card {
+      width: 220px;
+      padding: 25px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255,255,255,0.05);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 1.5s;
+    }
+
+    .card:nth-child(3) {
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%,100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+    .card h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #00ffe0;
+    }
+
+    .card p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+    }
+
+    .weapon {
+      position: absolute;
+      width: 280px;
+      opacity: 0.08;
+      filter: drop-shadow(0 0 25px #7f5cff);
+      animation: rotate 20s linear infinite;
+    }
+
+    .weapon.left {
+      left: -50px;
+      top: 20%;
+    }
+
+    .weapon.right {
+      right: -50px;
+      bottom: 15%;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media(max-width:768px) {
+      .hero h1 {
+        font-size: 3.5rem;
+      }
+
+      .navbar {
+        padding: 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .stats {
+        position: relative;
+        margin-top: 50px;
+        bottom: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="overlay"></div>
+
+<div class="navbar">
+  <div class="logo">NEON STRIKE</div>
+
+  <div class="nav-links">
+    <a href="#">Home</a>
+    <a href="#">Game</a>
+    <a href="#">Leaderboard</a>
+    <a href="#">Discord</a>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>NEON STRIKE</h1>
+
+  <p>
+    Enter a futuristic cyberpunk battlefield where speed, power, and strategy collide.
+    Fight intense battles, unlock legendary weapons, dominate ranked matches,
+    and become the ultimate champion.
+  </p>
+
+  <div class="buttons">
+    <button class="btn" onclick="playGame()">▶ Play Now</button>
+    <button class="btn" onclick="joinDiscord()">🎮 Join Discord</button>
+  </div>
+
+  <div class="stats">
+    <div class="card">
+      <h2>2M+</h2>
+      <p>Players Worldwide</p>
+    </div>
+
+    <div class="card">
+      <h2>120+</h2>
+      <p>Weapons & Skins</p>
+    </div>
+
+    <div class="card">
+      <h2>24/7</h2>
+      <p>Competitive Servers</p>
+    </div>
+  </div>
+</div>
+
+<img class="weapon left" src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png">
+<img class="weapon right" src="https://cdn-icons-png.flaticon.com/512/3595/3595455.png">
+
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  let particles = [];
+
+  for(let i = 0; i < 180; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2,
+      velocity: Math.random() * 1,
+      opacity: Math.random()
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+      ctx.fill();
+
+      p.y += p.velocity;
+
+      if(p.y > canvas.height) {
+        p.y = 0;
+        p.x = Math.random() * canvas.width;
+      }
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+function playGame() {
+  window.location.href = 'game.html';
+}
+
+function joinDiscord() {
+  window.open('https://discord.gg/7F6c2dXH2', '_blank');
+}
+</script>
+</body>
+</html>
+
+
+<!-- ============================ -->
+<!-- SAVE THIS AS game.html -->
+<!-- ============================ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Runner Game</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow: hidden;
+      background: linear-gradient(to bottom,#050510,#111133);
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+      margin: auto;
+      background: rgba(0,0,0,0.4);
+      box-shadow: 0 0 40px rgba(0,255,255,0.4);
+    }
+
+    .ui {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 24px;
+      z-index: 2;
+    }
+
+    .game-over {
+      position: absolute;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      background: rgba(0,0,0,0.8);
+      z-index: 5;
+    }
+
+    .game-over h1 {
+      font-size: 5rem;
+      margin-bottom: 20px;
+    }
+
+    .restart-btn {
+      padding: 15px 35px;
+      border: none;
+      border-radius: 12px;
+      background: cyan;
+      color: black;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ui">Score: <span id="score">0</span></div>
+
+<div class="game-over" id="gameOver">
+  <h1>GAME OVER</h1>
+  <button class="restart-btn" onclick="location.reload()">Restart</button>
+</div>
+
+<canvas id="gameCanvas" width="900" height="500"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let player = {
+  x: 100,
+  y: 220,
+  width: 50,
+  height: 50,
+  color: 'cyan',
+  velocityY: 0,
+  gravity: 0.7,
+  jump: -12
+};
+
+let obstacles = [];
+let score = 0;
+let gameRunning = true;
+
+function createObstacle() {
+  let size = Math.random() * 50 + 30;
+
+  obstacles.push({
+    x: canvas.width,
+    y: Math.random() * (canvas.height - size),
+    width: size,
+    height: size,
+    color: 'red'
+  });
+}
+
+setInterval(() => {
+  if(gameRunning) createObstacle();
+}, 1200);
+
+function drawPlayer() {
+  ctx.fillStyle = player.color;
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = 'cyan';
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+function drawObstacles() {
+  obstacles.forEach(obstacle => {
+    obstacle.x -= 7;
+
+    ctx.fillStyle = obstacle.color;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = 'red';
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+    if(
+      player.x < obstacle.x + obstacle.width &&
+      player.x + player.width > obstacle.x &&
+      player.y < obstacle.y + obstacle.height &&
+      player.y + player.height > obstacle.y
+    ) {
+      endGame();
+    }
+  });
+
+  obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+}
+
+function updatePlayer() {
+  player.velocityY += player.gravity;
+  player.y += player.velocityY;
+
+  if(player.y + player.height > canvas.height) {
+    player.y = canvas.height - player.height;
+    player.velocityY = 0;
+  }
+
+  if(player.y < 0) {
+    player.y = 0;
+  }
+}
+
+function drawBackground() {
+  ctx.fillStyle = 'rgba(0,0,20,0.3)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  for(let i = 0; i < 100; i++) {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+  }
+}
+
+function endGame() {
+  gameRunning = false;
+  document.getElementById('gameOver').style.display = 'flex';
+}
+
+function animate() {
+  if(!gameRunning) return;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  drawBackground();
+  updatePlayer();
+  drawPlayer();
+  drawObstacles();
+
+  score++;
+  document.getElementById('score').innerText = score;
+
+  requestAnimationFrame(animate);
+}
+
+window.addEventListener('keydown', (e) => {
+  if(e.code === 'Space') {
+    player.velocityY = player.jump;
+  }
+});
+
+animate();
+</script>
+
+</body>
+</html>
